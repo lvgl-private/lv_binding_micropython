@@ -2,14 +2,14 @@
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 find_program(AWK awk mawk gawk)
 
-set(LV_BINDINGS_DIR ${MICROPY_DIR}/lib/lv_bindings)
+set(LV_BINDINGS_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Common function for creating LV bindings
 
 function(lv_bindings)
     set(_options)
-    set(_one_value_args OUTPUT INPUT)
-    set(_multi_value_args DEPENDS PP_OPTIONS GEN_OPTIONS FILTER)
+    set(_one_value_args OUTPUT)
+    set(_multi_value_args INPUT DEPENDS COMPILE_OPTIONS PP_OPTIONS GEN_OPTIONS FILTER)
     cmake_parse_arguments(
         PARSE_ARGV 0 LV
         "${_options}"
@@ -24,7 +24,7 @@ function(lv_bindings)
         OUTPUT 
             ${LV_PP}
         COMMAND
-        ${CMAKE_C_COMPILER} -E -DPYCPARSER ${LV_PP_OPTIONS} "${LV_CFLAGS}" -I ${LV_BINDINGS_DIR}/pycparser/utils/fake_libc_include ${MICROPY_CPP_FLAGS} ${LV_INPUT} > ${LV_PP}
+        ${CMAKE_C_COMPILER} -E -DPYCPARSER ${LV_COMPILE_OPTIONS} ${LV_PP_OPTIONS} "${LV_CFLAGS}" -I ${LV_BINDINGS_DIR}/pycparser/utils/fake_libc_include ${MICROPY_CPP_FLAGS} ${LV_INPUT} > ${LV_PP}
         DEPENDS
             ${LV_INPUT}
             ${LV_DEPENDS}
@@ -34,6 +34,12 @@ function(lv_bindings)
         VERBATIM
         COMMAND_EXPAND_LISTS
     )
+
+    if(ESP_PLATFORM)
+        target_compile_options(${COMPONENT_LIB} PRIVATE ${LV_COMPILE_OPTIONS})
+    else()
+        target_compile_options(usermod_lv_bindings INTERFACE ${LV_COMPILE_OPTIONS})
+    endif()
 
     if (DEFINED LV_FILTER)
 
@@ -81,7 +87,9 @@ set(LV_PNG_DIR ${LV_BINDINGS_DIR}/driver/png/lodepng)
 set(LV_MP ${CMAKE_BINARY_DIR}/lv_mp.c)
 set(LV_PNG ${CMAKE_BINARY_DIR}/lv_png.c)
 set(LV_PNG_C ${CMAKE_BINARY_DIR}/lv_png_c.c)
-set(LV_ESPIDF ${CMAKE_BINARY_DIR}/lv_espidf.c)
+if(ESP_PLATFORM)
+    set(LV_ESPIDF ${CMAKE_BINARY_DIR}/lv_espidf.c)
+endif()
 
 # Function for creating all specific bindings
 
@@ -105,7 +113,6 @@ function(all_lv_bindings)
 
     file(GLOB_RECURSE LV_PNG_HEADERS ${LV_PNG_DIR}/*.h)
     configure_file(${LV_PNG_DIR}/lodepng.cpp ${LV_PNG_C} COPYONLY)
-    idf_build_set_property(COMPILE_DEFINITIONS "${LV_PNG_PP_OPTIONS}" APPEND)
     lv_bindings(
         OUTPUT
             ${LV_PNG}
@@ -113,37 +120,36 @@ function(all_lv_bindings)
             ${LV_PNG_DIR}/lodepng.h
         DEPENDS
             ${LV_PNG_HEADERS}
-        PP_OPTIONS
+        COMPILE_OPTIONS
             -DLODEPNG_NO_COMPILE_ENCODER -DLODEPNG_NO_COMPILE_DISK -DLODEPNG_NO_COMPILE_ALLOCATORS
         GEN_OPTIONS
             -M lodepng
     )
 
     # ESPIDF bindings
-
-    file(GLOB_RECURSE LV_ESPIDF_HEADERS ${IDF_PATH}/components/*.h ${LV_BINDINGS_DIR}/driver/esp32/*.h)
-    lv_bindings(
-        OUTPUT
-            ${LV_ESPIDF}
-        INPUT
-            ${LV_BINDINGS_DIR}/driver/esp32/espidf.h
-        DEPENDS
-            ${LV_ESPIDF_HEADERS}
-        PP_OPTIONS
-            -DPYCPARSER
-        GEN_OPTIONS
-             -M espidf
-        FILTER
-            i2s_ll.h
-            i2s_hal.h
-            esp_intr_alloc.h
-            soc/spi_periph.h
-            rom/ets_sys.h
-            soc/sens_struct.h
-            soc/rtc.h
-            driver/periph_ctrl.h
-            include/esp_private
-    )
+    if(ESP_PLATFORM)
+        file(GLOB_RECURSE LV_ESPIDF_HEADERS ${IDF_PATH}/components/*.h ${LV_BINDINGS_DIR}/driver/esp32/*.h)
+        lv_bindings(
+            OUTPUT
+                ${LV_ESPIDF}
+            INPUT
+                ${LV_BINDINGS_DIR}/driver/esp32/espidf.h
+            DEPENDS
+                ${LV_ESPIDF_HEADERS}
+            GEN_OPTIONS
+                 -M espidf
+            FILTER
+                i2s_ll.h
+                i2s_hal.h
+                esp_intr_alloc.h
+                soc/spi_periph.h
+                rom/ets_sys.h
+                soc/sens_struct.h
+                soc/rtc.h
+                driver/periph_ctrl.h
+                include/esp_private
+        )
+    endif(ESP_PLATFORM)
 
 endfunction()
 
@@ -158,16 +164,16 @@ set(LV_INCLUDE
 
 set(LV_SRC
     ${LV_MP}
-
-    ${LV_BINDINGS_DIR}/driver/esp32/espidf.c
-    ${LV_BINDINGS_DIR}/driver/esp32/modrtch.c
-    ${LV_BINDINGS_DIR}/driver/esp32/sh2lib.c
-
     ${LV_PNG}
     ${LV_PNG_C}
     ${LV_BINDINGS_DIR}/driver/png/mp_lodepng.c
-
-    ${LV_ESPIDF}
 )
 
-
+if(ESP_PLATFORM)
+    LIST(APPEND LV_SRC
+        ${LV_BINDINGS_DIR}/driver/esp32/espidf.c
+        ${LV_BINDINGS_DIR}/driver/esp32/modrtch.c
+        ${LV_BINDINGS_DIR}/driver/esp32/sh2lib.c
+        ${LV_ESPIDF}
+    )
+endif(ESP_PLATFORM)
