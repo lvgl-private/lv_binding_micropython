@@ -122,7 +122,7 @@
  *With complex image decoders (e.g. PNG or JPG) caching can save the continuous open/decode of images.
  *However the opened images might consume additional RAM.
  *0: to disable caching*/
-#define LV_IMG_CACHE_DEF_SIZE 1
+#define LV_IMG_CACHE_DEF_SIZE 16
 
 /*Maximum buffer size to allocate for rotation. Only used if software rotation is enabled in the display driver.*/
 #define LV_DISP_ROT_MAX_BUF (10*1024)
@@ -181,7 +181,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 /*1: Print the log with 'printf';
  *0: User need to register a callback with `lv_log_register_print_cb()`*/
-#  define LV_LOG_PRINTF 0
+#  define LV_LOG_PRINTF 1
 
 /*Enable/disable LV_LOG_TRACE in modules that produces a huge number of logs*/
 #  define LV_LOG_TRACE_MEM        1
@@ -538,11 +538,11 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 /*File system interfaces for common APIs
  *To enable set a driver letter for that API*/
-#define LV_USE_FS_STDIO '\0'        /*Uses fopen, fread, etc*/
-//#define LV_FS_STDIO_PATH "/home/john/"    /*Set the working directory. If commented it will be "./" */
+#define LV_USE_FS_STDIO 'A'        /*Uses fopen, fread, etc*/
+#define LV_FS_STDIO_PATH ""    /*Set the working directory. If commented it will be "./" */
 
 #define LV_USE_FS_POSIX '\0'        /*Uses open, read, etc*/
-//#define LV_FS_POSIX_PATH "/home/john/"    /*Set the working directory. If commented it will be "./" */
+//#define LV_FS_POSIX_PATH ""    /*Set the working directory. If commented it will be "./" */
 
 #define LV_USE_FS_WIN32 '\0'        /*Uses CreateFile, ReadFile, etc*/
 //#define LV_FS_WIN32_PATH "C:\\Users\\john\\"    /*Set the working directory. If commented it will be ".\\" */
@@ -550,7 +550,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_USE_FS_FATFS '\0'        /*Uses f_open, f_read, etc*/
 
 /*PNG decoder library*/
-#define LV_USE_PNG 0
+#define LV_USE_PNG 1
 
 /*BMP decoder library*/
 #define LV_USE_BMP 1
