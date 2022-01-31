@@ -507,7 +507,7 @@ mp_to_lv = {
     'long int'                  : '(long int)mp_obj_get_int',
     'long long'                 : '(long long)mp_obj_get_ull',
     'long long int'             : '(long long int)mp_obj_get_ull',
-    'float'                     : 'mp_obj_get_float',
+    'float'                     : '(float)mp_obj_get_float',
 }
 
 lv_to_mp = {
@@ -1747,6 +1747,8 @@ def try_generate_struct(struct_name, struct):
     # print('/* --> try_generate_struct %s: %s\n%s */' % (struct_name, gen.visit(struct), struct))
     if not struct.decls:
         if struct_name == struct.name:
+            return None
+        if struct.name not in structs:
             return None
         return try_generate_type(structs[struct.name])
     flatten_struct_decls = flatten_struct(struct.decls)
