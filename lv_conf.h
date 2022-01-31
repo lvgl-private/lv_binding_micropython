@@ -286,7 +286,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 #define LV_EXPORT_CONST_INT(int_value) enum {ENUM_##int_value = int_value}
 
 /*Extend the default -32k..32k coordinate range to -4M..4M by using int32_t for coordinates instead of int16_t*/
-#define LV_USE_LARGE_COORD 0
+#define LV_USE_LARGE_COORD 1
 
 /*==================
  *   FONT USAGE
@@ -339,7 +339,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 /*Enable handling large font and/or fonts with a lot of characters.
  *The limit depends on the font size, font face and bpp.
  *Compiler error will be triggered if a font needs it.*/
-#define LV_FONT_FMT_TXT_LARGE 0
+#define LV_FONT_FMT_TXT_LARGE 1
 
 /*Enables/disables support for compressed fonts.*/
 #define LV_USE_FONT_COMPRESSED 0
@@ -538,32 +538,25 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 
 /*File system interfaces for common APIs
  *To enable set a driver letter for that API*/
-#define LV_USE_FS_STDIO 'A'        /*Uses fopen, fread, etc*/
+#define LV_USE_FS_STDIO 1        /*Uses fopen, fread, etc*/
+#define LV_FS_STDIO_LETTER 'A'
 #define LV_FS_STDIO_PATH ""    /*Set the working directory. If commented it will be "./" */
-
-#define LV_USE_FS_POSIX '\0'        /*Uses open, read, etc*/
-//#define LV_FS_POSIX_PATH ""    /*Set the working directory. If commented it will be "./" */
-
-#define LV_USE_FS_WIN32 '\0'        /*Uses CreateFile, ReadFile, etc*/
-//#define LV_FS_WIN32_PATH "C:\\Users\\john\\"    /*Set the working directory. If commented it will be ".\\" */
-
-#define LV_USE_FS_FATFS '\0'        /*Uses f_open, f_read, etc*/
 
 /*PNG decoder library*/
 #define LV_USE_PNG 1
 
 /*BMP decoder library*/
-#define LV_USE_BMP 1
+#define LV_USE_BMP 0
 
 /* JPG + split JPG decoder library.
  * Split JPG is a custom format optimized for embedded systems. */
-#define LV_USE_SJPG 1
+#define LV_USE_SJPG 0
 
 /*GIF decoder library*/
-#define LV_USE_GIF 1
+#define LV_USE_GIF 0
 
 /*QR code library*/
-#define LV_USE_QRCODE 1
+#define LV_USE_QRCODE 0
 
 /*FreeType library*/
 #define LV_USE_FREETYPE 0
@@ -577,7 +570,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
  *----------*/
 
 /*1: Enable API to take snapshot for object*/
-#define LV_USE_SNAPSHOT 1
+#define LV_USE_SNAPSHOT 0
 
 
 /*==================
@@ -585,7 +578,7 @@ e.g. "stm32f769xx.h" or "stm32f429xx.h"*/
 *==================*/
 
 /*Enable the examples to be built with the library*/
-#define LV_BUILD_EXAMPLES 1
+#define LV_BUILD_EXAMPLES 0
 
 /*--END OF LV_CONF_H--*/
 
